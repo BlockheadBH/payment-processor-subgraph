@@ -23,9 +23,6 @@ dataSources:
         - InvoiceRefunded
         - InvoiceRejected
         - InvoiceReleased
-        - OwnershipHandoverCanceled
-        - OwnershipHandoverRequested
-        - OwnershipTransferred
       abis:
         - name: PaymentProcessorV1
           file: ./abis/PaymentProcessorV1.json
@@ -44,10 +41,4 @@ dataSources:
           handler: handleInvoiceRejected
         - event: InvoiceReleased(indexed uint256)
           handler: handleInvoiceReleased
-        - event: OwnershipHandoverCanceled(indexed address)
-          handler: handleOwnershipHandoverCanceled
-        - event: OwnershipHandoverRequested(indexed address)
-          handler: handleOwnershipHandoverRequested
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-      file: ./src/payment-processor-v-1.ts
+      file: ./src/mapping.ts

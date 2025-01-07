@@ -1,87 +1,18 @@
-type InvoiceAccepted @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  acceptedAt: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Invoice @entity {
+  id: ID!
+  status: String
+  createdAt: BigInt
+  paidAt: BigInt
+  creator: Creator
+  payer: Payer
 }
 
-type InvoiceCanceled @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Creator @entity {
+  id: ID!
+  Invoices: [Invoice!]! @derivedFrom(field: "creator")
 }
 
-type InvoiceCreated @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  creator: Bytes! # address
-  price: BigInt! # uint256
-  createdAt: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type InvoicePaid @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  payer: Bytes! # address
-  amountPayed: BigInt! # uint256
-  payedAt: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type InvoiceRefunded @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type InvoiceRejected @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type InvoiceReleased @entity(immutable: true) {
-  id: Bytes!
-  invoiceId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipHandoverCanceled @entity(immutable: true) {
-  id: Bytes!
-  pendingOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipHandoverRequested @entity(immutable: true) {
-  id: Bytes!
-  pendingOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  oldOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Payer @entity {
+  id: ID!
+  Invoices: [Invoice!]! @derivedFrom(field: "payer")
 }
