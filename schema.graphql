@@ -3,16 +3,14 @@ type Invoice @entity {
   status: String
   createdAt: BigInt
   paidAt: BigInt
-  creator: Creator
-  payer: Payer
+  creator: User
+  payer: User
+  price: BigInt
+  amountPaid: BigInt
 }
 
-type Creator @entity {
+type User @entity {
   id: ID!
-  Invoices: [Invoice!]! @derivedFrom(field: "creator")
-}
-
-type Payer @entity {
-  id: ID!
-  Invoices: [Invoice!]! @derivedFrom(field: "payer")
+  createdInvoices: [Invoice!]! @derivedFrom(field: "creator")
+  paidInvoices: [Invoice!]! @derivedFrom(field: "payer")
 }

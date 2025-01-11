@@ -7,39 +7,41 @@ import {
   InvoiceRejected as InvoiceRejectedEvent,
   InvoiceReleased as InvoiceReleasedEvent,
 } from "../generated/PaymentProcessorV1/PaymentProcessorV1";
-import { Invoice, Creator, Payer } from "../generated/schema";
+import { Invoice, User } from "../generated/schema";
 
 export function handleInvoiceCreated(event: InvoiceCreatedEvent): void {
   let entity = new Invoice(event.params.invoiceId.toString());
 
   const invoiceCreator = event.params.creator.toHex();
-  let creator = Creator.load(invoiceCreator);
+  let user = User.load(invoiceCreator);
 
-  if (!creator) {
-    creator = new Creator(invoiceCreator);
-    creator.save();
+  if (!user) {
+    user = new User(invoiceCreator);
+    user.save();
   }
 
   entity.status = "CREATED";
   entity.creator = invoiceCreator;
   entity.createdAt = event.block.timestamp;
-
+  entity.price = event.params.createdAt;
   entity.save();
 }
 
 export function handleInvoicePaid(event: InvoicePaidEvent): void {
+  let invoicePayer = event.params.payer.toHex();
   let entity = Invoice.load(event.params.invoiceId.toString());
+
   if (!entity) return;
 
-  let payer = Payer.load(event.params.payer.toString());
-
-  if (!payer) {
-    payer = new Payer(event.params.payer.toString());
-    payer.save();
+  let user = User.load(invoicePayer);
+  if (!user) {
+    user = new User(invoicePayer);
+    user.save();
   }
 
-  entity.payer = event.params.payer.toHex();
+  entity.payer = invoicePayer;
   entity.paidAt = event.block.timestamp;
+  entity.amountPaid = event.params.amountPayed;
   entity.status = "PAID";
 
   entity.save();
