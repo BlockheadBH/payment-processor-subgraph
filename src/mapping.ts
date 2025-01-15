@@ -41,8 +41,8 @@ export function handleInvoicePaid(event: InvoicePaidEvent): void {
 
   entity.payer = invoicePayer;
   entity.paidAt = event.block.timestamp;
-  entity.amountPaid = event.params.amountPayed;
   entity.status = "PAID";
+  entity.amountPaid = event.params.amountPayed;
 
   entity.save();
 }
