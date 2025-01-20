@@ -1,3 +1,4 @@
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   InvoiceAccepted as InvoiceAcceptedEvent,
   InvoiceCanceled as InvoiceCanceledEvent,
@@ -6,6 +7,7 @@ import {
   InvoiceRefunded as InvoiceRefundedEvent,
   InvoiceRejected as InvoiceRejectedEvent,
   InvoiceReleased as InvoiceReleasedEvent,
+  SetInvoiceHoldPeriodCall,
 } from "../generated/PaymentProcessorV1/PaymentProcessorV1";
 import { Invoice, User } from "../generated/schema";
 
@@ -23,7 +25,18 @@ export function handleInvoiceCreated(event: InvoiceCreatedEvent): void {
   entity.status = "CREATED";
   entity.creator = invoiceCreator;
   entity.createdAt = event.block.timestamp;
-  entity.price = event.params.createdAt;
+  entity.price = event.params.price;
+  entity.save();
+}
+
+export function handleHoldPeriod(func: SetInvoiceHoldPeriodCall): void {
+  let invoiceId = func.inputs._invoiceId;
+  let entity = Invoice.load(invoiceId.toString());
+  if (!entity) return;
+
+  const holdPeriod = func.inputs._holdPeriod.plus(func.block.timestamp);
+
+  entity.holdPeriod = holdPeriod;
   entity.save();
 }
 
@@ -42,7 +55,7 @@ export function handleInvoicePaid(event: InvoicePaidEvent): void {
   entity.payer = invoicePayer;
   entity.paidAt = event.block.timestamp;
   entity.status = "PAID";
-  entity.amountPaid = event.params.amountPayed;
+  entity.amountPaid = event.params.amountPaid;
 
   entity.save();
 }
@@ -51,6 +64,7 @@ export function handleInvoiceAccepted(event: InvoiceAcceptedEvent): void {
   let entity = Invoice.load(event.params.invoiceId.toString());
   if (!entity) return;
 
+  entity.holdPeriod = event.block.timestamp.plus(BigInt.fromI32(86400));
   entity.status = "ACCEPTED";
 
   entity.save();
