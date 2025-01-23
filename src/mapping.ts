@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   InvoiceAccepted as InvoiceAcceptedEvent,
   InvoiceCanceled as InvoiceCanceledEvent,
@@ -7,9 +7,13 @@ import {
   InvoiceRefunded as InvoiceRefundedEvent,
   InvoiceRejected as InvoiceRejectedEvent,
   InvoiceReleased as InvoiceReleasedEvent,
+  PaymentProcessorV1,
   SetInvoiceHoldPeriodCall,
 } from "../generated/PaymentProcessorV1/PaymentProcessorV1";
 import { Invoice, User } from "../generated/schema";
+
+const PAYMENT_PROCESSOR_CONTRACT_ADDRESS =
+  "0x3aceBd0b7024CB53880A397c763Ef658DfCD10e6";
 
 export function handleInvoiceCreated(event: InvoiceCreatedEvent): void {
   let entity = new Invoice(event.params.invoiceId.toString());
@@ -64,7 +68,13 @@ export function handleInvoiceAccepted(event: InvoiceAcceptedEvent): void {
   let entity = Invoice.load(event.params.invoiceId.toString());
   if (!entity) return;
 
-  entity.holdPeriod = event.block.timestamp.plus(BigInt.fromI32(86400));
+  const pp = PaymentProcessorV1.bind(
+    Address.fromString(PAYMENT_PROCESSOR_CONTRACT_ADDRESS)
+  );
+
+  if (!entity.holdPeriod)
+    entity.holdPeriod = event.block.timestamp.plus(pp.getDefaultHoldPeriod());
+
   entity.status = "ACCEPTED";
 
   entity.save();
